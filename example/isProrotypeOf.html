@@ -1,0 +1,114 @@
+<script src="../simpletest.js"></script>
+<script>
+
+
+function isPrototypeOf(prototypeObj, object) {
+  if (prototypeObj === undefined || prototypeObj === null) {
+    throw new TypeError("Cannot read property 'isPrototypeOf' of " + prototypeObj);
+  }
+
+  if (typeof object !== 'object' || object === null || object === undefined) {
+    return false;
+  }
+
+  if (prototypeObj === object.__proto__) {
+    return true;
+  } else {
+    return isPrototypeOf(prototypeObj, object.__proto__);
+  }
+
+}
+
+
+tests({
+  'If prototypeObj provided is undefined or null, it should throw a TypeError.': function() {
+    var errorMessage;
+    try {
+      isPrototypeOf();
+    } catch(e) {
+      errorMessage = e;
+    }
+    eq(errorMessage, "TypeError: Cannot read property 'isPrototypeOf' of undefined");
+
+    try {
+      isPrototypeOf(null);
+    } catch(e) {
+      errorMessage = e;
+    }
+    eq(errorMessage, "TypeError: Cannot read property 'isPrototypeOf' of null");
+  },
+  'It should return a Boolean': function() {
+    var isBoolean = typeof isPrototypeOf({}) === 'boolean';
+
+    eq(isBoolean, true);
+  },
+  'If prototyoeObj lies in prototype chain of object, it should return true.': function() {
+    var canine = {
+      bark: function() {
+        console.log('bark');
+      }
+    };
+
+    var dog = Object.create(canine);
+    dog.fetch = function() {
+      console.log('fetch');
+    };
+
+    var myDog = Object.create(dog);
+
+    eq(isPrototypeOf(dog, myDog), true);
+  },
+  'If prototypeObj does not lie in prototype chain of object, it should return false.': function() {
+    var canine = {
+      bark: function() {
+        console.log('bark');
+      }
+    };
+
+    var dog = Object.create(canine);
+    dog.fetch = function() {
+      console.log('fetch');
+    };
+
+    var empty = Object.create(null);
+
+    eq(isPrototypeOf(dog, empty), false);
+  },
+  'It should work for any number of prototype links.': function() {
+    var canine = {
+      bark: function() {
+        console.log('bark');
+      }
+    };
+
+    var dog = Object.create(canine);
+    dog.fetch = function() {
+      console.log('fetch');
+    };
+
+    var myDog = Object.create(dog);
+
+    eq(canine.isPrototypeOf(myDog), true);
+  },
+  'It should pass Example: "Using isPrototypeOf" from MDN docs.': function() {
+    function Foo() {}
+    function Bar() {}
+    function Baz() {}
+
+    Bar.prototype = Object.create(Foo.prototype);
+    Baz.prototype = Object.create(Bar.prototype);
+
+    var baz = new Baz();
+
+    eq(isPrototypeOf(Baz.prototype, baz), true);
+    eq(isPrototypeOf(Bar.prototype, baz), true);
+    eq(isPrototypeOf(Foo.prototype, baz), true);
+    eq(isPrototypeOf(Object.prototype, baz), true);
+  },
+  'If object is null or undefined, it should return false.': function() {
+    eq(isPrototypeOf({}, null), false);
+    eq(isPrototypeOf({}, undefined), false);
+  },
+});
+
+</script>
